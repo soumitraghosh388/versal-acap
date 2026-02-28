@@ -1,3 +1,6 @@
+// Copyright Soumitra Ghosh, IIIT Hyderabad, India, 2025
+//
+// SPDX-License-Identifier: MIT
 #ifndef __KERNELS_H__
 #define __KERNELS_H__
 

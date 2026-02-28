@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Advanced Micro Devices, Inc
+// Copyright Soumitra Ghosh, IIIT Hyderabad, India, 2025
 //
 // SPDX-License-Identifier: MIT
 
@@ -43,8 +43,6 @@ void qP_word_aie_k(const int8_t* __restrict read_num,
                      const int32_t n,
 					 vector<DATATYPE16, VLEN8>* __restrict vProfile) {
 
-    //int32_t segLen = (readLen + VLEN8 - 1) / VLEN8;  // Each v8int16 holds 8 int16_t values
-
     for (int32_t nt = 0; nt < n; ++nt) {
         for (int32_t i = 0; i < SEG_LEN; ++i) {
         	vector<DATATYPE16, VLEN8> vals = zeros<DATATYPE16, VLEN8>();;
@@ -76,18 +74,12 @@ int32_t sw_aie_word_k(const int8_t* __restrict ref,
 
 	int32_t maximum = 0;		                     /* the max alignment score */
 	int32_t end_read = readLen - 1;
-	//int32_t segLen = (readLen + VLEN8 - 1) / VLEN8; /* number of segment */
 
 	/* array to record the largest score of each reference position */
 	int16 maxColumn[REF_LEN] = {0};
 
 	/* Define 16 byte 0 vector. */
 	vector<DATATYPE16, VLEN8> vZero = zeros<DATATYPE16, VLEN8>();
-
-	/*vector<DATATYPE16, VLEN8> pvHStore[SEG_LEN];
-	vector<DATATYPE16, VLEN8> pvHLoad[SEG_LEN];
-	vector<DATATYPE16, VLEN8> pvE[SEG_LEN];
-	vector<DATATYPE16, VLEN8> pvHmax[SEG_LEN];*/
 
 	vector<DATATYPE16, VLEN8> pvHStoreA[SEG_LEN];
 	vector<DATATYPE16, VLEN8> pvHLoadA[SEG_LEN];
@@ -109,16 +101,10 @@ int32_t sw_aie_word_k(const int8_t* __restrict ref,
 
 	int32_t i, j, k;
 	/* 16 byte insertion begin vector */
-	//__m128i vGapO = _mm_set1_epi16(weight_gapO);
 	vector<DATATYPE16, VLEN8> vGapO = broadcast<DATATYPE16, VLEN8>(weight_gapO);
 
 	/* 16 byte insertion extension vector */
-	//__m128i vGapE = _mm_set1_epi16(weight_gapE);
 	vector<DATATYPE16, VLEN8> vGapE = broadcast<DATATYPE16, VLEN8>(weight_gapE);
-
-	//__m128i vMaxScore = vZero; /* Trace the highest score of the whole SW matrix. */
-	//__m128i vMaxMark = vZero; /* Trace the highest score till the previous column. */
-	//__m128i vTemp;
 	vector<DATATYPE16, VLEN8> vMaxScore = vZero;
 	vector<DATATYPE16, VLEN8> vMaxMark = vZero;
 	vector<DATATYPE16, VLEN8> vTemp;
@@ -126,15 +112,10 @@ int32_t sw_aie_word_k(const int8_t* __restrict ref,
 	int32_t edge, begin = 0, end = refLen, step = 1;
 
 	for (i = begin; i != end; i += step) {
-		//int32_t cmp;
 		vector<DATATYPE16, VLEN8> e, vF = vZero; /* Initialize F value to 0. Any errors to vH values will be corrected in the Lazy_F loop.*/
 		vector<DATATYPE16, VLEN8> vH = pvHStore[SEG_LEN - 1];
-		//printf("\nvH before upshift:");
-		//print(vH, false);
 		// Concatenate the tail and a zero at the end
 		vH.push(0);
-		//printf("\nvH after upshift:");
-		//print(vH, false);
 
 		/* Swap the 2 H buffers. */
 		vector<DATATYPE16, VLEN8>* pv = pvHLoad;
@@ -142,64 +123,33 @@ int32_t sw_aie_word_k(const int8_t* __restrict ref,
 		vector<DATATYPE16, VLEN8> vMaxColumn = vZero; /* vMaxColumn is used to record the max values of column i. */
 
 		const vector<DATATYPE16, VLEN8>* vP = vProfile + ref[i] * SEG_LEN; /* Right part of the vProfile */
-		//printf("\nvP:");
-		//print(*vP, false);
 		pvHLoad = pvHStore;
 		pvHStore = pv;
-
-		//printf("\npvHLoad:");
-		//print_arr(pvHLoad, SEG_LEN);
-		//printf("\npvHStore:");
-		//print_arr(pvHStore, SEG_LEN);
-
 		/* inner loop to process the query sequence */
 		for (j = 0; j < SEG_LEN; j ++) {
-			/*printf("\nvH before saturating_add:");
-			print(vH, false);
-			printf("\nvP[j] before saturating_add:");
-			print(vP[j], false);*/
 			vH = saturating_add(vH, vP[j]);
-			//printf("\nvH after saturating_add:");
-			//print(vH, false);
 
 			/* Get max from vH, vE and vF. */
 			e = pvE[j];
-			//printf("\ne after load:");
-			//print(e, false);
 			vH = max(vH, e);
-			//printf("\nvH after max(vH, e):");
-			//print(vH, false);
 			vH = max(vH, vF);
-			//printf("\nvH after max(vH, vF):");
-			//print(vH, false);
 			vMaxColumn = max(vMaxColumn, vH);
 
 			/* Save vH values. */
 			pvHStore[j] = vH;
-			//printf("\npvHStore after saving vH values :");
-			//print_arr(pvHStore, SEG_LEN);
 
 			/* Update vE value. */
 			vH = saturating_subu(vH, vGapO); /* saturation arithmetic, result >= 0 */
-			//printf("\nvH after saturating_subu:");
-			//print(vH, false);
 			e = saturating_subu(e, vGapE);
 			e = max(e, vH);
 			pvE[j] = e;
 
 			/* Update vF value. */
-			//printf("\nvF before saturating_subu:");
-			//print(vF, false);
 			vF = saturating_subu(vF, vGapE);
 			vF = max(vF, vH);
 
 			/* Load the next vH. */
 			vH = pvHLoad[j];
-
-			/*printf("\nvH:");
-			print(vH, false);
-			printf(" vF:");
-			print(vF, false);*/
 		}
 
 		/* Lazy_F loop: has been revised to disallow adjecent insertion and then deletion, so don't update E(i, j), learn from SWPS3 */
@@ -210,33 +160,14 @@ int32_t sw_aie_word_k(const int8_t* __restrict ref,
 				vH = max(vH, vF);
 				vMaxColumn = max(vMaxColumn, vH); //newly added line
 				pvHStore[j] = vH;
-				//printf("\npvHStore in lazy_F loop :");
-				//print_arr(pvHStore, SEG_LEN);
 				vH = saturating_subu(vH, vGapO);
 				vF = saturating_subu(vF, vGapE);
-				/*printf("\nvH in lazy_F loop :");
-				print(vH, false);
-				printf(" vF in lazy_F loop :");
-				print(vF, false);*/
 				if (equal(gtcmp16(vF, vH), zeros<DATATYPE16, VLEN8>())) goto end;
 			}
 		}
 
 end:
 		vMaxScore = max(vMaxScore, vMaxColumn);
-		//vTemp = eq(vMaxMark, vMaxScore);
-		//cmp = reduce_or(vTemp);
-		//printf("%B\n", equal(vMaxMark, vMaxScore));
-		//printf("%d\n", equal(vMaxMark, vMaxScore));
-		//printf("%B\n", !equal(vMaxMark, vMaxScore));
-		//printf("%d\n", !equal(vMaxMark, vMaxScore));
-		/*printf("\ni: %d\n",i);
-		printf("vMaxScore:");
-		print(vMaxScore, false);
-		printf(" vMaxColumn:");
-		print(vMaxColumn, false);
-		printf(" vMaxMark:");
-		print(vMaxMark, false);*/
 		if (!equal(vMaxMark, vMaxScore)) {
 			uint16_t temp;
 			vMaxMark = vMaxScore;
@@ -245,7 +176,6 @@ end:
 
 			if (temp > maximum) {
 				maximum = temp;
-				//end_ref = i;
 				for (j = 0; j < SEG_LEN; ++j) pvHmax[j] = pvHStore[j];
 			}
 		}
@@ -253,7 +183,6 @@ end:
 		/* Record the max score of current column. */
 		max8(maxColumn[i], vMaxColumn);
 		if (maxColumn[i] == terminate) break;
-		//if (i == 1) break;
 	}
 
 	return maximum;
@@ -262,13 +191,6 @@ end:
 
 void aie_swg_str_kernel(input_stream_int32* __restrict in0, input_stream_int32* __restrict in1, output_stream_int32* __restrict out)
 {
-	/*static unsigned long long cycle_num[2];
-	tile tile=tile::current();
-	volatile unsigned long long *p_cycle=cycle_num;
-	*p_cycle=tile.cycles();*/
-	//printf("Running on tile col=%d, row=%d, ", __XCHESS_TILE__C, __XCHESS_TILE__R);
-	//printf("start cycles=%lld, ",cycle_num[0]);
-
 	int8_t ref[REF_LEN], read[READ_LEN];
 	int8_t mat[AA_LEN*AA_LEN], l, k;
 	int32_t ref_enc[NREF*NPACKET];
@@ -280,13 +202,11 @@ void aie_swg_str_kernel(input_stream_int32* __restrict in0, input_stream_int32* 
 	{
 		ref_enc[i] = readincr(in0);
 	}
-	//printf("after ref_enc, %d %d, ", ref_enc[0], ref_enc[1]);
 	for (unsigned int i=0; i<(NK-kernel_num)*NREF*NPACKET; i++)
 		chess_prepare_for_pipelining
 	{
 		writeincr(out,readincr(in0));// pass remaining refs
 	}
-	//printf("after pass remaining refs, kernel_num : %d, ", kernel_num);
 	for (unsigned int i=0; i<NPACKET; i++)
 		chess_prepare_for_pipelining
 	{
@@ -297,7 +217,6 @@ void aie_swg_str_kernel(input_stream_int32* __restrict in0, input_stream_int32* 
 			read[i*PACKETLEN-j+PACKETLEN-1] = (data >> (j * 2)) & 0x3;
 		}
 	}
-	//printf("***after read query data, %d %d %d %d, ", read[0], read[1], read[READ_LEN-2], read[READ_LEN-1]);
 	for (l = k = 0; l < AA_LEN; ++l)
 	{
 		for (int m = 0; m < AA_LEN; ++m)
@@ -306,10 +225,7 @@ void aie_swg_str_kernel(input_stream_int32* __restrict in0, input_stream_int32* 
 	vector<DATATYPE16, VLEN8> vProfile[AA_LEN*SEG_LEN];//size must be n*segLen
 	aie::vector<DATATYPE16, VLEN8>* profile_word;
 	qP_word_aie_k(&read[0], &mat[0], READ_LEN, AA_LEN, &vProfile[0]);
-	//print_arr(vProfile, AA_LEN*SEG_LEN);
 	profile_word = &vProfile[0];
-	//printf("after profile_word, ");
-	//print_arr_k(vProfile, AA_LEN*SEG_LEN);
 	int32_t max_arr[NREF];
 	for (unsigned int k=0; k<NREF; k++)
 		chess_prepare_for_pipelining
@@ -327,9 +243,6 @@ void aie_swg_str_kernel(input_stream_int32* __restrict in0, input_stream_int32* 
 		}
 
 		max_arr[k] = sw_aie_word_k(&ref[0], REF_LEN, READ_LEN, gap_open, gap_extension, profile_word, -1);
-		//writeincr(out, maximum);
-		//printf("maximum : %d, ", maximum);
-		//if (kernel_num==NK) writeincr(out, maximum);
 	}
 	for (int i=0; i<kernel_num*NREF; i++)
 		chess_prepare_for_pipelining
@@ -341,7 +254,5 @@ void aie_swg_str_kernel(input_stream_int32* __restrict in0, input_stream_int32* 
 	{
 		writeincr(out, max_arr[i]);
 	}
-	//*(p_cycle+1)=tile.cycles();//cycle_num[1]
-	//printf("cycles=%lld\n",cycle_num[1]-cycle_num[0]);
 }
 

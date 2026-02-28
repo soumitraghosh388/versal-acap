@@ -1,7 +1,9 @@
+// Copyright Soumitra Ghosh, IIIT Hyderabad, India, 2025
+//
+// SPDX-License-Identifier: MIT
 #include <ap_int.h>
 #include <hls_stream.h>
 #include <ap_axi_sdata.h>
-//#include "hls_print.h"
 
 #define N 39
 #define NK 9
@@ -298,20 +300,11 @@ void pl_mm2s(
 #pragma HLS INTERFACE s_axilite port=mem_ref_39   bundle=control
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
-    // Use macro or loop unrolling to fill in 39 times
-    // Here's an example for stream 0 (you can script/generate the rest)
-// Loop-unrolled query + ref stream writes
 	for (int j = 0; j < QUERY_PKTS; j++) {
-	//#pragma HLS PIPELINE II=1
 		ap_axis<32, 0, 0, 0> x;
 		x.data = mem_query[j];
-		//hls::print("mem_query : %d, ", mem_query[j]);
 		out_query_0.write(x);
-		//x.data = mem_query[1 * QUERY_PKTS + j];
-		//hls::print("mem_query : %d, ", mem_query[1 * QUERY_PKTS + j]);
 		out_query_1.write(x);
-		//x.data = mem_query[2 * QUERY_PKTS + j];
-		//hls::print("mem_query : %d, ", mem_query[2 * QUERY_PKTS + j]);
 		out_query_2.write(x);
 		out_query_3.write(x);
 		out_query_4.write(x);
@@ -350,10 +343,8 @@ void pl_mm2s(
 		out_query_37.write(x);
 		out_query_38.write(x);
 	}
-	//hls::print("\n");
 
 	for (int k = 0; k < REF_PKTS; k++) {
-	//#pragma HLS PIPELINE II=1
 		ap_axis<32, 0, 0, 0> x;
 		x.data = mem_ref_1[k];
 		out_ref_0.write(x);

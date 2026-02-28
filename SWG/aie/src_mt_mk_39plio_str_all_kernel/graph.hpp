@@ -1,3 +1,6 @@
+// Copyright Soumitra Ghosh, IIIT Hyderabad, India, 2025
+//
+// SPDX-License-Identifier: MIT
 #ifndef __GRAPH_H__
 #define __GRAPH_H__
 
@@ -33,9 +36,6 @@ public:
                 p_s2_10, p_s2_11, p_s2_12, p_s2_13, p_s2_14, p_s2_15, p_s2_16, p_s2_17, p_s2_18, p_s2_19,
                 p_s2_20, p_s2_21, p_s2_22, p_s2_23, p_s2_24, p_s2_25, p_s2_26, p_s2_27, p_s2_28, p_s2_29,
                 p_s2_30, p_s2_31, p_s2_32, p_s2_33, p_s2_34, p_s2_35, p_s2_36, p_s2_37, p_s2_38;
-    /*input_plio p_s0_0, p_s0_1, p_s0_2;
-    input_plio p_s1_0, p_s1_1, p_s1_2;
-    output_plio p_s2_0, p_s2_1, p_s2_2;*/
 
     simpleGraph() {
         int ind_max = N;
@@ -58,9 +58,6 @@ public:
             &p_s2_10, &p_s2_11, &p_s2_12, &p_s2_13, &p_s2_14, &p_s2_15, &p_s2_16, &p_s2_17, &p_s2_18, &p_s2_19,
             &p_s2_20, &p_s2_21, &p_s2_22, &p_s2_23, &p_s2_24, &p_s2_25, &p_s2_26, &p_s2_27, &p_s2_28, &p_s2_29,
             &p_s2_30, &p_s2_31, &p_s2_32, &p_s2_33, &p_s2_34, &p_s2_35, &p_s2_36, &p_s2_37, &p_s2_38 };
-        /*input_plio* p_s0_list[N] = {&p_s0_0, &p_s0_1, &p_s0_2};
-        input_plio* p_s1_list[N] = {&p_s1_0, &p_s1_1, &p_s1_2};
-        output_plio* p_s2_list[N] = {&p_s2_0, &p_s2_1, &p_s2_2};*/
 
         for (int i = 0; i < N; i++) {
             char out_file_str[30];
@@ -71,8 +68,10 @@ public:
             sprintf(p1_name, "StreamIn1_%d", i);
             sprintf(p2_name, "StreamOut0_%d", i);
 
+            char p1_file[40];
+            sprintf(p1_file, "data/input_%d.seq", i + 1);
             *p_s0_list[i] = input_plio::create(p0_name, plio_32_bits, "data/input_0.seq");
-            *p_s1_list[i] = input_plio::create(p1_name, plio_32_bits, "data/input_1.seq");
+            *p_s1_list[i] = input_plio::create(p1_name, plio_32_bits, p1_file);
             *p_s2_list[i] = output_plio::create(p2_name, plio_32_bits, out_file_str);
 
             swg[i] = kernel::create(aie_swg_str_master);

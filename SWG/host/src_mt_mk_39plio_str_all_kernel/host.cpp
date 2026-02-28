@@ -1,7 +1,6 @@
-// Copyright (C) 2023 Advanced Micro Devices, Inc
+// Copyright Soumitra Ghosh, IIIT Hyderabad, India, 2025
 //
 // SPDX-License-Identifier: MIT
-//#include <graph.cpp>
 #include <cstring>
 #include <fstream>
 #include <stdio.h>
@@ -46,14 +45,7 @@ int main(int argc, char** argv) {
     // Get reference to the kernels
     std::cout << "Get references to compute units" << std::endl;
     auto pl_mm2s_1 = xrt::kernel(device, uuid, "pl_mm2s:{pl_mm2s_1}");
-    /*auto pl_mm2s_2 = xrt::kernel(device, uuid, "pl_mm2s:{pl_mm2s_2}");
-    auto pl_mm2s_3 = xrt::kernel(device, uuid, "pl_mm2s:{pl_mm2s_3}");
-    auto pl_mm2s_4 = xrt::kernel(device, uuid, "pl_mm2s:{pl_mm2s_4}");
-    auto pl_mm2s_5 = xrt::kernel(device, uuid, "pl_mm2s:{pl_mm2s_5}");
-    auto pl_mm2s_6 = xrt::kernel(device, uuid, "pl_mm2s:{pl_mm2s_6}");*/
     auto pl_s2mm_1 = xrt::kernel(device, uuid, "pl_s2mm:{pl_s2mm_1}");
-    /*auto pl_s2mm_2 = xrt::kernel(device, uuid, "pl_s2mm:{pl_s2mm_2}");
-    auto pl_s2mm_3 = xrt::kernel(device, uuid, "pl_s2mm:{pl_s2mm_3}");*/
 
     // Allocating the input size of sizeIn to MM2S
     std::cout << "Allocate Buffer in Global Memory" << std::endl;
@@ -103,11 +95,8 @@ int main(int argc, char** argv) {
     auto in_buff_40 = xrt::bo(device, size_in_bytes_1, pl_mm2s_1.group_id(39));
 
     auto out_buff_1 = xrt::bo(device, size_in_bytes_2, pl_s2mm_1.group_id(0));
-    /*auto out_buff_2 = xrt::bo(device, size_in_bytes_2, pl_s2mm_2.group_id(0));
-    auto out_buff_3 = xrt::bo(device, size_in_bytes_2, pl_s2mm_3.group_id(0));*/
 
     // Generate random data and write data to compute unit buffers
-    //unsigned int out_size = 2*num_elements;
     auto *DataInput0 = new int32_t [num_elements_0];
 
     auto *DataInput1 = new int32_t [num_elements_1];
@@ -151,10 +140,7 @@ int main(int argc, char** argv) {
     auto *DataInput39 = new int32_t [num_elements_1];
 
     auto *DataOutput = new int32_t [num_elements_2];
-    /*for (unsigned int i = 0; i < num_elements; i++) {
-        DataInput0[i] = (rand() % (1 << 30)) * ((rand()%2) ? 1 : -1);
-//        DataInput1[i] = (rand() % (1 << 30)) * ((rand()%2) ? 1 : -1);
-    }*/
+
     memset(DataInput0, 0, size_in_bytes_0);
 
     memset(DataInput1, 0, size_in_bytes_1);
@@ -199,92 +185,25 @@ int main(int argc, char** argv) {
 
     memset(DataOutput, 0, size_in_bytes_2);
 
-    /*std::ifstream file;
-	file.open("../../aie_swg/data/input_0.seq");
-    if (!file)
-    {
-            std::cerr << "Error opening file0!" << std::endl;
-            return 1;
-    }
-    int32_t number;
-    int i = 0;
-    while(file >> number)
-    {
-    	std::cout << "number : " <<number<< std::endl;
-    	DataInput0[i] = number;
-    	i++;
-    }// Read as a normal integer
-
-
-    std::ifstream file1;
-    file1.open("../../aie_swg/data/input_1.seq");
-    if (!file1)
-    {
-            std::cerr << "Error opening file1!" << std::endl;
-            return 1;
-    }
-    i = 0;
-    while(file1 >> number)
-    {
-    	DataInput1[i] = number;
-    	i++;
-    }// Read as a normal integer
-    std::cout << "DataInput1[i] : " <<DataInput1[i-1]<< std::endl;
-
-    file.close();
-    file1.close();
-    file1.open("../../aie_swg/data/input_2.seq");
-	if (!file1)
-	{
-			std::cerr << "Error opening file2!" << std::endl;
-			return 1;
-	}
-	i = 0;
-	while(file1 >> number)
-	{
-		DataInput2[i] = number;
-		i++;
-	}// Read as a normal integer
-	std::cout << "DataInput1[i] : " <<DataInput2[i-1]<< std::endl;
-	file1.close();
-	file1.open("../../aie_swg/data/input_3.seq");
-	if (!file1)
-	{
-			std::cerr << "Error opening file3!" << std::endl;
-			return 1;
-	}
-	i = 0;
-	while(file1 >> number)
-	{
-		DataInput3[i] = number;
-		i++;
-	}// Read as a normal integer
-	std::cout << "DataInput3[i] : " <<DataInput3[i-1]<< std::endl;
-	file1.close();*/
-
     int32_t* input_list[N+1] = {&DataInput0[0],&DataInput1[0],&DataInput2[0],&DataInput3[0],&DataInput4[0],&DataInput5[0],&DataInput6[0],&DataInput7[0],&DataInput8[0],&DataInput9[0],&DataInput10[0],&DataInput11[0],&DataInput12[0],&DataInput13[0],&DataInput14[0],&DataInput15[0],&DataInput16[0],&DataInput17[0],&DataInput18[0],&DataInput19[0],&DataInput20[0],&DataInput21[0],&DataInput22[0],&DataInput23[0],&DataInput24[0],&DataInput25[0],&DataInput26[0],&DataInput27[0],&DataInput28[0],&DataInput29[0],&DataInput30[0],&DataInput31[0],&DataInput32[0],&DataInput33[0],&DataInput34[0],&DataInput35[0],&DataInput36[0],&DataInput37[0],&DataInput38[0],&DataInput39[0]};
 
-	for (int i=0;i<N;i++)
-	{
-	    std::ifstream file;
+    // Read query: input_0.seq -> DataInput0
+    {
+        std::ifstream file("../../aie/data/input_0.seq");
+        if (!file) { std::cerr << "Error opening input_0.seq" << std::endl; return 1; }
+        int32_t number; int j = 0;
+        while (file >> number) DataInput0[j++] = number;
+    }
+    // Read per-lane references: input_1.seq..input_39.seq -> DataInput1..DataInput39
+    for (int i = 0; i < N; i++)
+    {
         char file_str[100];
-        sprintf(file_str, "../../aie_swg/data/src_mt_mk_3plio_str_all_kernel/input_%d.seq", i);
-		file.open(file_str);
-	    if (!file)
-	    {
-	            std::cerr << "Error opening file!" << std::endl;
-	            return 1;
-	    }
-	    int32_t number;
-	    int j = 0;
-	    while(file >> number)
-	    {
-	    	//std::cout << "number : " <<number<< std::endl;
-	    	input_list[i][j] = number;
-	    	j++;
-	    }
-	    file.close();
-	}
+        sprintf(file_str, "../../aie/data/input_%d.seq", i + 1);
+        std::ifstream file(file_str);
+        if (!file) { std::cerr << "Error opening " << file_str << std::endl; return 1; }
+        int32_t number; int j = 0;
+        while (file >> number) input_list[i + 1][j++] = number;
+    }
 
     std::cout << "Before writing" << std::endl;
     start = std::clock();
@@ -329,8 +248,6 @@ int main(int argc, char** argv) {
     in_buff_39.write(DataInput38);
     in_buff_40.write(DataInput39);
 
-
-
     // Synchronize input buffers data to device global memory
     std::cout << "Synchronize input buffers data to device global memory" << std::endl;
     in_buff_1.sync(XCL_BO_SYNC_BO_TO_DEVICE);
@@ -374,7 +291,6 @@ int main(int argc, char** argv) {
     in_buff_39.sync(XCL_BO_SYNC_BO_TO_DEVICE);
     in_buff_40.sync(XCL_BO_SYNC_BO_TO_DEVICE);
 
-    
     end = std::clock();
     h2d_duration = 1000.0 * (end - start) / CLOCKS_PER_SEC;
     std::cout << "Host to Device: " << h2d_duration << " milliseconds." << std::endl;
@@ -382,43 +298,10 @@ int main(int argc, char** argv) {
     start = std::clock();
     // Execute the compute units
     std::cout << "Run the kernels" << std::endl;
-    /*auto run_pl_s2mm_1 = pl_s2mm_1(out_buff_1, nullptr, num_elements_2);
-    auto run_pl_s2mm_2 = pl_s2mm_2(out_buff_2, nullptr, num_elements_2);
-    auto run_pl_s2mm_3 = pl_s2mm_3(out_buff_3, nullptr, num_elements_2);
-    auto run_pl_mm2s_1 = pl_mm2s_1(in_buff_1, nullptr, num_elements_0);
-    auto run_pl_mm2s_2 = pl_mm2s_2(in_buff_2, nullptr, num_elements_0);
-    auto run_pl_mm2s_3 = pl_mm2s_3(in_buff_3, nullptr, num_elements_0);
-    auto run_pl_mm2s_4 = pl_mm2s_4(in_buff_4, nullptr, num_elements_1);
-    auto run_pl_mm2s_5 = pl_mm2s_5(in_buff_5, nullptr, num_elements_1);
-    auto run_pl_mm2s_6 = pl_mm2s_6(in_buff_6, nullptr, num_elements_1);*/
-    //auto run_pl_s2mm_1 = pl_s2mm_1(out_buff_1, nullptr, nullptr, nullptr);
-    //auto run_pl_mm2s_1 = pl_mm2s_1(in_buff_1, in_buff_2, in_buff_3, in_buff_4, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-    //auto run_pl_s2mm_1 = pl_s2mm_1(out_buff_1, nullptr);
-    //auto run_pl_mm2s_1 = pl_mm2s_1(in_buff_1, in_buff_2, nullptr, nullptr);
+
     auto run_pl_s2mm_1 = pl_s2mm_1(out_buff_1, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     auto run_pl_mm2s_1 = pl_mm2s_1(in_buff_1,in_buff_2,in_buff_3,in_buff_4,in_buff_5,in_buff_6,in_buff_7,in_buff_8,in_buff_9,in_buff_10,in_buff_11,in_buff_12,in_buff_13,in_buff_14,in_buff_15,in_buff_16,in_buff_17,in_buff_18,in_buff_19,in_buff_20,in_buff_21,in_buff_22,in_buff_23,in_buff_24,in_buff_25,in_buff_26,in_buff_27,in_buff_28,in_buff_29,in_buff_30,in_buff_31,in_buff_32,in_buff_33,in_buff_34,in_buff_35,in_buff_36,in_buff_37,in_buff_38,in_buff_39,in_buff_40, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-    //nw_graph.init();
-    //nw_graph.run(1);
-    //nw_graph.end();
-    // Wait for kernels to complete
-    /*run_pl_mm2s_1.wait();
-    std::cout << "pl_mm2s_1 completed" << std::endl;
-    run_pl_mm2s_2.wait();
-    std::cout << "pl_mm2s_2 completed" << std::endl;
-    run_pl_mm2s_3.wait();
-    std::cout << "pl_mm2s_3 completed" << std::endl;
-    run_pl_mm2s_4.wait();
-    std::cout << "pl_mm2s_4 completed" << std::endl;
-    run_pl_mm2s_5.wait();
-    std::cout << "pl_mm2s_5 completed" << std::endl;
-    run_pl_mm2s_6.wait();
-    std::cout << "pl_mm2s_6 completed" << std::endl;
-    run_pl_s2mm_1.wait();
-    std::cout << "pl_s2mm_1 completed" << std::endl;
-    run_pl_s2mm_2.wait();
-    std::cout << "pl_s2mm_2 completed" << std::endl;
-	run_pl_s2mm_3.wait();
-	std::cout << "pl_s2mm_3 completed" << std::endl;*/
+
     run_pl_mm2s_1.wait();
     std::cout << "pl_mm2s_1 completed" << std::endl;
     run_pl_s2mm_1.wait();
@@ -434,8 +317,6 @@ int main(int argc, char** argv) {
     // Synchronize the output buffer data from the device
     std::cout << "Synchronize the output buffer data from the device" << std::endl;
     out_buff_1.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-    /*out_buff_2.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-    out_buff_3.sync(XCL_BO_SYNC_BO_FROM_DEVICE);*/
 
     // Read output buffer data to local buffer
     out_buff_1.read(DataOutput);
@@ -443,18 +324,39 @@ int main(int argc, char** argv) {
     d2h_duration = 1000.0 * (end - start) / CLOCKS_PER_SEC;
     std::cout << "Device to Host: " << d2h_duration << " milliseconds." << std::endl;
 
-    /*for (unsigned int i = 0; i < 2; i++) {
-		for (unsigned int j = 0; j < num_elements_2; j++) {
-			std::cout<<DataOutput[i*num_elements_2+j]<<",";
-		}
-		std::cout<<std::endl;
-    }*/
-    /*for (unsigned int j = 0; j < num_elements_2; j++) {
-    	if (j%500 == 0)
-    		std::cout<<DataOutput[j]<<","<<std::endl;
-	}*/
-    std::cout<<"Test Passed"<<std::endl;
-    //std::cout.flush();
+    // Load ground truth from output_ref.txt and assert against AIE output
+    // output_ref.txt layout: N*TOTAL_REFS lines, grouped by lane
+    //   lane 0: scores for refs 0..99  (master 0..9, kernel1 10..19, ..., kernel9 90..99)
+    //   lane 1: scores for refs 0..99
+    //   ...
+    // DataOutput layout: DataOutput[lane * (NK+1)*NREF + r]
+    {
+        const int SCORES_PER_LANE = (NK + 1) * NREF;
+        std::ifstream gt_file("../../aie/data/output_ref.txt");
+        if (!gt_file) {
+            std::cerr << "Error opening output_ref.txt" << std::endl;
+            return 1;
+        }
+        int mismatches = 0;
+        int32_t expected;
+        for (int lane = 0; lane < N; lane++) {
+            for (int r = 0; r < SCORES_PER_LANE; r++) {
+                gt_file >> expected;
+                int32_t got = DataOutput[lane * SCORES_PER_LANE + r];
+                if (got != expected) {
+                    std::cerr << "MISMATCH lane=" << lane << " ref=" << r
+                              << " expected=" << expected << " got=" << got << std::endl;
+                    mismatches++;
+                }
+            }
+        }
+        if (mismatches == 0)
+            std::cout << "Test Passed: all " << N * SCORES_PER_LANE
+                      << " scores match ground truth." << std::endl;
+        else
+            std::cout << "Test FAILED: " << mismatches << " mismatches." << std::endl;
+    }
+
     for(int i=0;i<N;i++)
     {
     	free(input_list[i]);

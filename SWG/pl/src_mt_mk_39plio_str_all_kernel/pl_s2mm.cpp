@@ -1,3 +1,6 @@
+// Copyright Soumitra Ghosh, IIIT Hyderabad, India, 2025
+//
+// SPDX-License-Identifier: MIT
 #include <ap_int.h>
 #include <hls_stream.h>
 #include <ap_axi_sdata.h>
@@ -96,7 +99,6 @@ void pl_s2mm(
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
     for (int j = 0; j < PACKET_LEN; j++) {
-//#pragma HLS PIPELINE II=1
     	mem_out[j] = in_data_0.read().data;
         mem_out[1 * PACKET_LEN + j] = in_data_1.read().data;
         mem_out[2 * PACKET_LEN + j] = in_data_2.read().data;
@@ -254,8 +256,5 @@ void pl_s2mm(
 	while (!in_data_38.empty()) {
 	  in_data_38.read();
 	}
-    // Handle stream 0 separately (outside loop, like index 0)
-//#pragma HLS PIPELINE II=1
-
 }
 }
